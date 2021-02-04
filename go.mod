@@ -1,8 +1,9 @@
 module github.com/kayrus/openstack-token
 
-go 1.13
+go 1.15
 
 require (
-	github.com/fernet/fernet-go v0.0.0-20180830025343-9eac43b88a5e
-	github.com/vmihailenco/msgpack/v4 v4.2.1
+	github.com/fernet/fernet-go v0.0.0-20191111064656-eff2850e6001
+	github.com/vmihailenco/msgpack/v4 v4.3.12
+	gopkg.in/yaml.v2 v2.4.0
 )

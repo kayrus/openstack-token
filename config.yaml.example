@@ -1,0 +1,13 @@
+# authMethods list and order must correspond to keystone config "methods" option
+# in "auth" section.
+authMethods:
+  - password
+  - token
+  - oauth1
+  - application_credential
+# tokenTTL corresponds to keystone config "expiration" option in "token" section
+tokenTTL: 4h
+# fernetKeys values should be taken from files in "key_repository" directory of
+# the "fernet_tokens" section.
+fernetKeys:
+  - cw_0x689RpI-jtRR7oE8h_eQsKImvJapLeSbXpwF4e4=

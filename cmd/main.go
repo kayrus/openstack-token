@@ -47,6 +47,7 @@ type args struct {
 	userName     string
 	userDomainID string
 	projectID    string
+	domainID     string
 	authMethod   uint
 	generateKey  bool
 	auditIDs     auditID
@@ -133,11 +134,11 @@ func parseToken(tok string, cfg *Config) error {
 
 func resolveUserID(userName string, domainID string) (string, error) {
 	if userName == "" {
-		return "", fmt.Errorf("--user-name is empty")
+		return "", fmt.Errorf("-user-name is empty")
 	}
 
 	if domainID == "" {
-		return "", fmt.Errorf("--user-domain-id is required, when --user-name is used")
+		return "", fmt.Errorf("-user-domain-id is required, when -user-name is used")
 	}
 
 	uid := sha256.Sum256([]byte(fmt.Sprintf("%suser%s", domainID, strings.ToUpper(userName))))
@@ -161,19 +162,20 @@ func generateToken(args *args, cfg *Config) (*string, error) {
 		auditIDs = []token.Hex{token.Hex(auditID)}
 	}
 
+	var err error
+	userID := args.userID
+	if userID == "" {
+		userID, err = resolveUserID(args.userName, args.userDomainID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	var genToken token.Token
 	if args.projectID != "" {
 		projectID, err := hex.DecodeString(args.projectID)
 		if err != nil {
 			return nil, err
-		}
-
-		userID := args.userID
-		if userID == "" {
-			userID, err = resolveUserID(args.userName, args.userDomainID)
-			if err != nil {
-				return nil, err
-			}
 		}
 
 		genToken = &token.ProjectScopedToken{
@@ -188,21 +190,17 @@ func generateToken(args *args, cfg *Config) (*string, error) {
 			ExpiresAt: float64(timeNext.Unix()),
 			AuditIDs:  auditIDs,
 		}
-	} else if args.userID != "" {
-		genToken = &token.UnscopedToken{
+	} else if args.domainID != "" {
+		genToken = &token.DomainScopedToken{
 			UserID: token.Data{
-				Value: args.userID,
+				Value: userID,
 			},
+			DomainID:    token.Hex(args.domainID),
 			AuthMethods: token.AuthMethods(args.authMethod),
 			ExpiresAt:   float64(timeNext.Unix()),
 			AuditIDs:    auditIDs,
 		}
-	} else if args.userName != "" {
-		userID, err := resolveUserID(args.userName, args.userDomainID)
-		if err != nil {
-			return nil, err
-		}
-
+	} else {
 		genToken = &token.UnscopedToken{
 			UserID: token.Data{
 				Value: userID,
@@ -211,8 +209,6 @@ func generateToken(args *args, cfg *Config) (*string, error) {
 			ExpiresAt:   float64(timeNext.Unix()),
 			AuditIDs:    auditIDs,
 		}
-	} else {
-		return nil, fmt.Errorf("not enough parameters, see help")
 	}
 
 	return token.Encode(genToken, cfg.FernetKeys[0])
@@ -226,6 +222,7 @@ func main() {
 	flag.StringVar(&args.userName, "user-name", os.Getenv("OS_USER_NAME"), "OpenStack user name to generate the unscoped token (works only with AD/LDAP users, requires user domain ID)")
 	flag.StringVar(&args.userDomainID, "user-domain-id", os.Getenv("OS_USER_DOMAIN_ID"), "OpenStack user's domain ID to generate the unscoped token (works only with AD/LDAP users)")
 	flag.StringVar(&args.projectID, "project-id", os.Getenv("OS_PROJECT_ID"), "OpenStack project ID to generate the project scoped token")
+	flag.StringVar(&args.domainID, "domain-id", os.Getenv("OS_DOMAIN_ID"), "OpenStack domain ID to generate the domain scoped token")
 	flag.Var(&args.auditIDs, "audit-id", "Custom audit ID for the token (can be specified multiple times)")
 	flag.UintVar(&args.authMethod, "auth-method", 1, "Auth method number to use in a generated token (max 127)")
 	flag.BoolVar(&args.generateKey, "generate-key", false, "Generate a Fernet key and exit")

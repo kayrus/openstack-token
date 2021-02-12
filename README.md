@@ -12,11 +12,13 @@ Set an `OS_AUTH_TOKEN` environment variable to decode and verify the token.
 
 ## Generate
 
-When an `OS_AUTH_TOKEN` environment variable is not set, the tool will try to generate a project scoped token using the `--user-id` (`OS_USER_ID` env variable) and `--project-id` (`OS_PROJECT_ID` env variable) flags. When `--project-id` flag is empty or invalid, the tool will generate an unscoped token (details below).
+When an `OS_AUTH_TOKEN` environment variable is not set, the tool will try to generate a project scoped token using the `-user-id` (`OS_USER_ID` env variable) and `-project-id` (`OS_PROJECT_ID` env variable) flags. When `-project-id` flag is empty or invalid, the tool will generate an unscoped token (details below).
 
-When `--user-id` is unknown, the `--user-name` (`OS_USER_NAME` env variable) and `--user-domain-id` (`OS_USER_DOMAIN_ID` env variable) will be used to generate the user ID (works only with users, which come from AD/LDAP).
+When `-user-id` is unknown, the `-user-name` (`OS_USER_NAME` env variable) and `-user-domain-id` (`OS_USER_DOMAIN_ID` env variable) will be used to generate the user ID (works only with users, which come from AD/LDAP).
 
-To generate and print a random Fernet key use `--generate-key` CLI argument.
+To generate a domain scoped token, specify a `-domain-id` (`OS_DOMAIN_ID` env variable) argument.
+
+To generate and print a random Fernet key use `-generate-key` CLI argument.
 
 # Example
 

@@ -114,6 +114,19 @@ func parseToken(tok string, cfg *Config) error {
 	return nil
 }
 
+func resolveUserID(userName string, domainID string) (string, error) {
+	if userName == "" {
+		return "", fmt.Errorf("--user-name is empty")
+	}
+
+	if domainID == "" {
+		return "", fmt.Errorf("--user-domain-id is required, when --user-name is used")
+	}
+
+	uid := sha256.Sum256([]byte(fmt.Sprintf("%suser%s", domainID, strings.ToUpper(userName))))
+	return hex.EncodeToString(uid[:]), nil
+}
+
 func generateToken(args *args, cfg *Config) (*string, error) {
 	// generate new token to be valid for config.TokenTTL duration
 	timeNext := time.Now().Add(cfg.TokenTTL)
@@ -128,9 +141,17 @@ func generateToken(args *args, cfg *Config) (*string, error) {
 			return nil, err
 		}
 
+		userID := args.userID
+		if userID == "" {
+			userID, err = resolveUserID(args.userName, args.userDomainID)
+			if err != nil {
+				return nil, err
+			}
+		}
+
 		genToken = &token.ProjectScopedToken{
 			UserID: token.Data{
-				Value: args.userID,
+				Value: userID,
 			},
 			AuthMethods: token.AuthMethods(args.authMethod),
 			ProjectID: token.Data{
@@ -150,17 +171,11 @@ func generateToken(args *args, cfg *Config) (*string, error) {
 			AuditIDs:    []token.Hex{token.Hex(auditID)},
 		}
 	} else if args.userName != "" {
-		if args.userDomainID == "" {
-			return nil, fmt.Errorf("--user-domain-id is required, when --user-name is used")
-		}
-
-		_, err := hex.DecodeString(args.userDomainID)
+		userID, err := resolveUserID(args.userName, args.userDomainID)
 		if err != nil {
-			return nil, fmt.Errorf("--user-domain-id is invalid: %w", err)
+			return nil, err
 		}
 
-		uid := sha256.Sum256([]byte(fmt.Sprintf("%suser%s", args.userDomainID, strings.ToUpper(args.userName))))
-		userID := hex.EncodeToString(uid[:])
 		genToken = &token.UnscopedToken{
 			UserID: token.Data{
 				Value: userID,

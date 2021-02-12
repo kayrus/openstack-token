@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/hex"
 	"flag"
 	"fmt"
@@ -25,6 +26,21 @@ type Config struct {
 	AuthIndexes []int          `yaml:"-"`
 }
 
+type auditID []string
+
+func (a *auditID) String() string {
+	return strings.Join(*a, " ")
+}
+
+func (a *auditID) Set(value string) error {
+	v, err := base64.RawURLEncoding.DecodeString(value)
+	if err != nil {
+		return err
+	}
+	*a = append(*a, string(v))
+	return nil
+}
+
 type args struct {
 	configFile   string
 	userID       string
@@ -33,6 +49,7 @@ type args struct {
 	projectID    string
 	authMethod   uint
 	generateKey  bool
+	auditIDs     auditID
 }
 
 func (r *Config) UnmarshalYAML(unmarshal func(interface{}) error) error {
@@ -130,9 +147,19 @@ func resolveUserID(userName string, domainID string) (string, error) {
 func generateToken(args *args, cfg *Config) (*string, error) {
 	// generate new token to be valid for config.TokenTTL duration
 	timeNext := time.Now().Add(cfg.TokenTTL)
-	auditID := make([]byte, 16)
-	rand.Seed(time.Now().UnixNano())
-	rand.Read(auditID)
+
+	var auditIDs []token.Hex
+	if len(args.auditIDs) > 0 {
+		auditIDs = make([]token.Hex, len(args.auditIDs))
+		for i, v := range args.auditIDs {
+			auditIDs[i] = token.Hex(v)
+		}
+	} else {
+		auditID := make([]byte, 16)
+		rand.Seed(time.Now().UnixNano())
+		rand.Read(auditID)
+		auditIDs = []token.Hex{token.Hex(auditID)}
+	}
 
 	var genToken token.Token
 	if args.projectID != "" {
@@ -159,7 +186,7 @@ func generateToken(args *args, cfg *Config) (*string, error) {
 				Value: string(projectID),
 			},
 			ExpiresAt: float64(timeNext.Unix()),
-			AuditIDs:  []token.Hex{token.Hex(auditID)},
+			AuditIDs:  auditIDs,
 		}
 	} else if args.userID != "" {
 		genToken = &token.UnscopedToken{
@@ -168,7 +195,7 @@ func generateToken(args *args, cfg *Config) (*string, error) {
 			},
 			AuthMethods: token.AuthMethods(args.authMethod),
 			ExpiresAt:   float64(timeNext.Unix()),
-			AuditIDs:    []token.Hex{token.Hex(auditID)},
+			AuditIDs:    auditIDs,
 		}
 	} else if args.userName != "" {
 		userID, err := resolveUserID(args.userName, args.userDomainID)
@@ -182,7 +209,7 @@ func generateToken(args *args, cfg *Config) (*string, error) {
 			},
 			AuthMethods: token.AuthMethods(args.authMethod),
 			ExpiresAt:   float64(timeNext.Unix()),
-			AuditIDs:    []token.Hex{token.Hex(auditID)},
+			AuditIDs:    auditIDs,
 		}
 	} else {
 		return nil, fmt.Errorf("not enough parameters, see help")
@@ -199,6 +226,7 @@ func main() {
 	flag.StringVar(&args.userName, "user-name", os.Getenv("OS_USER_NAME"), "OpenStack user name to generate the unscoped token (works only with AD/LDAP users, requires user domain ID)")
 	flag.StringVar(&args.userDomainID, "user-domain-id", os.Getenv("OS_USER_DOMAIN_ID"), "OpenStack user's domain ID to generate the unscoped token (works only with AD/LDAP users)")
 	flag.StringVar(&args.projectID, "project-id", os.Getenv("OS_PROJECT_ID"), "OpenStack project ID to generate the project scoped token")
+	flag.Var(&args.auditIDs, "audit-id", "Custom audit ID for the token (can be specified multiple times)")
 	flag.UintVar(&args.authMethod, "auth-method", 1, "Auth method number to use in a generated token (max 127)")
 	flag.BoolVar(&args.generateKey, "generate-key", false, "Generate a Fernet key and exit")
 	flag.Parse()

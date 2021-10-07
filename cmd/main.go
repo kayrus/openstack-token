@@ -19,6 +19,8 @@ import (
 	"github.com/kayrus/openstack-token/token"
 )
 
+const timeFormat = "2006-01-02 15:04:05.999999999 -0700 MST"
+
 type Config struct {
 	TokenTTL    time.Duration  `yaml:"-"`
 	FernetKeys  []*fernet.Key  `yaml:"-"`
@@ -51,6 +53,7 @@ type args struct {
 	authMethod   uint
 	generateKey  bool
 	auditIDs     auditID
+	expiresAt    time.Time
 }
 
 func (r *Config) UnmarshalYAML(unmarshal func(interface{}) error) error {
@@ -148,6 +151,9 @@ func resolveUserID(userName string, domainID string) (string, error) {
 func generateToken(args *args, cfg *Config) (*string, error) {
 	// generate new token to be valid for config.TokenTTL duration
 	timeNext := time.Now().Add(cfg.TokenTTL)
+	if !args.expiresAt.IsZero() {
+		timeNext = args.expiresAt
+	}
 
 	var auditIDs []token.Hex
 	if len(args.auditIDs) > 0 {
@@ -216,6 +222,7 @@ func generateToken(args *args, cfg *Config) (*string, error) {
 
 func main() {
 	args := &args{}
+	var expiresAt string
 
 	flag.StringVar(&args.configFile, "config", "config.yaml", "config file path")
 	flag.StringVar(&args.userID, "user-id", os.Getenv("OS_USER_ID"), "OpenStack user ID to generate the project scoped token")
@@ -223,10 +230,19 @@ func main() {
 	flag.StringVar(&args.userDomainID, "user-domain-id", os.Getenv("OS_USER_DOMAIN_ID"), "OpenStack user's domain ID to generate the unscoped token (works only with AD/LDAP users)")
 	flag.StringVar(&args.projectID, "project-id", os.Getenv("OS_PROJECT_ID"), "OpenStack project ID to generate the project scoped token")
 	flag.StringVar(&args.domainID, "domain-id", os.Getenv("OS_DOMAIN_ID"), "OpenStack domain ID to generate the domain scoped token")
+	flag.StringVar(&expiresAt, "expires-at", "", fmt.Sprintf("override token expiration date (%q format)", timeFormat))
 	flag.Var(&args.auditIDs, "audit-id", "Custom audit ID for the token (can be specified multiple times)")
 	flag.UintVar(&args.authMethod, "auth-method", 1, "Auth method number to use in a generated token (max 127)")
 	flag.BoolVar(&args.generateKey, "generate-key", false, "Generate a Fernet key and exit")
 	flag.Parse()
+
+	if expiresAt != "" {
+		var err error
+		args.expiresAt, err = time.Parse(timeFormat, expiresAt)
+		if err != nil {
+			log.Fatalf("failed to parse expiration date: %s", err)
+		}
+	}
 
 	if args.generateKey {
 		key := &fernet.Key{}

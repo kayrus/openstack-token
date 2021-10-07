@@ -8,7 +8,10 @@ import (
 	"github.com/kayrus/openstack-token/token"
 )
 
-var debug bool
+var (
+	debug    bool
+	matchErr = "tokens don't match"
+)
 
 func init() {
 	flag.BoolVar(&debug, "debug", false, "print verbose logs")
@@ -68,7 +71,7 @@ func testDecodeUnscopedToken(tok *string, t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(testToken, decodedTok) {
-		t.Error(err)
+		t.Error(matchErr)
 	}
 }
 
@@ -104,7 +107,7 @@ func testDecodeDomainScopedToken(tok *string, t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(testToken, decodedTok) {
-		t.Error(err)
+		t.Error(matchErr)
 	}
 }
 
@@ -140,7 +143,7 @@ func testDecodeProjectScopedToken(tok *string, t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(testToken, decodedTok) {
-		t.Error(err)
+		t.Error(matchErr)
 	}
 }
 
@@ -176,7 +179,7 @@ func testDecodeTrustScopedToken(tok *string, t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(testToken, decodedTok) {
-		t.Error(err)
+		t.Error(matchErr)
 	}
 }
 
@@ -212,7 +215,7 @@ func testDecodeFederatedUnscopedToken(tok *string, t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(testToken, decodedTok) {
-		t.Error(err)
+		t.Error(matchErr)
 	}
 }
 
@@ -248,7 +251,7 @@ func testDecodeFederatedProjectScopedToken(tok *string, t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(testToken, decodedTok) {
-		t.Error(err)
+		t.Error(matchErr)
 	}
 }
 
@@ -284,7 +287,7 @@ func testDecodeFederatedDomainScopedToken(tok *string, t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(testToken, decodedTok) {
-		t.Error(err)
+		t.Error(matchErr)
 	}
 }
 
@@ -320,7 +323,7 @@ func testDecodeOAuthScopedToken(tok *string, t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(testToken, decodedTok) {
-		t.Error(err)
+		t.Error(matchErr)
 	}
 
 	am := decodedTok.GetAuthMethods()
@@ -365,7 +368,7 @@ func testDecodeSystemScopedToken(tok *string, t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(testToken, decodedTok) {
-		t.Error(err)
+		t.Error(matchErr)
 	}
 }
 
@@ -400,7 +403,7 @@ func testDecodeApplicationCredentialScopedToken(tok *string, t *testing.T) {
 
 	testToken := tokensToEncode["ApplicationCredentialScopedToken"]
 	if !reflect.DeepEqual(testToken, decodedTok) {
-		t.Error(err)
+		t.Error(matchErr)
 	}
 
 	am := decodedTok.GetAuthMethods()

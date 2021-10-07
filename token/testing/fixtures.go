@@ -34,7 +34,8 @@ var (
 		Bytes: true,
 		Value: string(uID),
 	}
-	domainID1 = token.Hex("default")
+	dID, _    = hex.DecodeString("61f3033e9e6e4d38bcee2bb7d2fa6b49")
+	domainID1 = token.Hex(dID)
 	domainID2 = token.Data{
 		Value: "61f3033e9e6e4d38bcee2bb7d2fa6b49",
 	}
@@ -156,7 +157,7 @@ var (
 	tokensToDecode = map[string]string{
 		"ExpiredToken":                     "gAAAAABgHr_jrMohx1tHUzeoPfO0Ou4SMtCMMOZTwEhXQS77kVbkSWCfRXhX4kWOeXnLNZerc6XhN4G_4xEpF8LtM-7hEXP17qSOIaWz-TZZgPHveyAgmWR8G0lzeBNwpQGEx1d-d7OQxP830IVBGgUgowiGLieiHvNqcg7HBkHJZ-WTwZPxnxQ",
 		"UnscopedToken":                    "gAAAAABgHrIyBhOzoRyZGuHEMGAAVVujiUDFQAzUbzJsVPpG75ijl809KHHaHBwaz1iliErkyFcTLPMSmrCnE4uRCCh1FfXlJ576zSVxBL0I36vzL-ETrmhG6UrrNlhHTj_9Zf9o6Q_OgqpLW8axNtZvt1JYx5DXNwrKXmaRo5T3WmOM1VjZNAw",
-		"DomainScopedToken":                "gAAAAABgHrIytdipNY-tRoPjRYf4lTKuIJxAscsPcqaDlYVjstlGVCOmJ8VbIfKNj1DEn07Ff2GV44RTmbMGExh9PxdSbwhnrWOGRZKxnKH9KdicnW1FKlqm-5XN_VAJ05o3rWMtd061qdKtgyIgYS6BheTWFSedQrtH2Yc1a-B9oyq28R2GWXc",
+		"DomainScopedToken":                "gAAAAABhXt8lPuBhsRIA0pjKIPjKMuk7_HFKKHub64x-ZQy4OOOQaauK-PMXIriRDnm8393x2iFR1UEEtrPzJSvuhWkO0K7gQvLOKQLuB-RcWOCwjgHcsXRa4tigoZZWItHeyB1LuzsR0N20rkRPfnePTF9JIk3Rl0mLmvAdS9FqS66UJB6tcCYw7Gk89fXXJj5IKXpX74_G",
 		"ProjectScopedToken":               "gAAAAABgHrIyjxg1uhHRszMPJ5c_dbs06ijQsiRc2aKbquUZeSsQgm7NtYZ8J3kqyofilwPx0Y5wDq4GS7inZeDP6Xj1mcYl_dd9GkXYoRfAk9Adv6qUfPQzajoVJgqnwcIF8jntnd2G2eSJU8uCqf60mF79pT9j5jKF4l-GmOHK5GxzvicdkEVTdNLOkPLS_BnCyXJ2gvdR",
 		"TrustScopedToken":                 "gAAAAABgHrIyNAsJA5S6WHMGOkUeQKfBTBfX4_uceb15e7OGvUuPXRFjjTNRAi3BVkadWTfNweqqpiRJ5-G7P2Xamzd5D99KNIiRlnSUkgdu2WXtSc5BbZZYNLPJ3B9mHtoKpBZv1jAXanoHcTZ38_IYxaqFjkMhyncMPVHPb-fXodysbxJENf8mqy8_PERjzV_qBVMNrua0I3YEqGoWHckUi4YxiWH7ji4LFPevQPoG_gKWTpqB3qo",
 		"FederatedUnscopedToken":           "gAAAAABgHrIyheA9WDwsJMFlaBBvLdXdmBFNo4J2T27k25CUyEX5e7C9AQfqMr5KZAxJUoTmGAG_umD85ssQdcowVaKMj5OSw0HAGCO_H9u2DHs6X3plMvcBpSdnN8RiHiaZRMRc-RT_sZhlhiMtyUsXaTfP9rPHjux2oYHHfqJhtk-LSGsq5Aw4rb3jSG1Ju3rJ3aRK2pnlKnp3Dj9DaAmX81H0cKdgyoA40vbk2UQWWfbenUhFttp2xw9Kdzioi54F7TJJkM3uOWvqPCBN2KxjhEBsAVVDgzrhZ6sT-RNvLWgOdmKjRCM6Z-aBF3inVsuIxDZAajJs",

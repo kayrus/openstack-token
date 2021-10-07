@@ -197,11 +197,16 @@ func generateToken(args *args, cfg *Config) (*string, error) {
 			AuditIDs:  auditIDs,
 		}
 	} else if args.domainID != "" {
+		domainID, err := hex.DecodeString(args.domainID)
+		if err != nil {
+			// domain is a string, e.g. "default"
+			domainID = []byte(args.domainID)
+		}
 		genToken = &token.DomainScopedToken{
 			UserID: token.Data{
 				Value: userID,
 			},
-			DomainID:    token.Hex(args.domainID),
+			DomainID:    token.Hex(domainID),
 			AuthMethods: token.AuthMethods(args.authMethod),
 			ExpiresAt:   float64(timeNext.Unix()),
 			AuditIDs:    auditIDs,
@@ -240,7 +245,7 @@ func main() {
 		var err error
 		args.expiresAt, err = time.Parse(timeFormat, expiresAt)
 		if err != nil {
-			log.Fatalf("failed to parse expiration date: %s", err)
+			log.Fatalf("failed to parse expiration date: %v", err)
 		}
 	}
 
@@ -248,7 +253,7 @@ func main() {
 		key := &fernet.Key{}
 		err := key.Generate()
 		if err != nil {
-			log.Fatalf("failed to generate a Fernet key: %s", err)
+			log.Fatalf("failed to generate a Fernet key: %v", err)
 		}
 		fmt.Printf("Generated key: %s\n", key.Encode())
 		return

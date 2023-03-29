@@ -67,8 +67,10 @@ var (
 		Value: string(atID),
 	}
 	systemID  = token.Hex("all")
+	acID, _   = hex.DecodeString("e87cdff53bec42b3990eaa0b7684feaa")
 	appCredID = token.Data{
-		Value: "e87cdff53bec42b3990eaa0b7684feaa",
+		Bytes: true,
+		Value: string(acID),
 	}
 
 	tokensToEncode = map[string]token.Token{
@@ -165,6 +167,6 @@ var (
 		"FederatedDomainScopedToken":       "gAAAAABgHrIyHxjgQQvUEjNE1AlVAZEYzPug_KQgs1BD0uO5jN8BkyOQymHPIuA-9AWSzHxDCN15x_MOrGWX6XpKq1dtJvUcb_VMFtOuLQ55oXeKaYt9XGsPm-BOQSmIMWK4z8PSIe2PF0lyc242DeD6ZcJv4TLvpbXH5l1IBNESeOKCERLhSsoQyj6xxnfOdjiRdvn5znXx1X65bGq5fJBZbbyuVhx0Yi4ansAbPPLEAkq7CJX2d5iEQcznDlzBQU8MSz9hGZ9E8uq2wPDxM0UCIFGFIlYtA5_aoxrIWO1fCzepVtESUsR6fOKnFZYXPTGFKmiXtV-O",
 		"OAuthScopedToken":                 "gAAAAABgHrIylItBPFIBMMeudyFq7QCQkAUFNXzhT6vuOqkoHoDhAH32NG509P_qCFheqOI90NMtA8AJCCszE58zeeTi0JJDymzR6tztcok5s-tZiVIptVHt7i-y5ZAH8_HvreryGNbNtb2Dz9CRm3hCVxl8-Z-dOPCeKQNYXBYoDv9RSU4q6av_y3FFimvTpvmA4Xs8PwiST_JMxi8OutUOpNL2BxwsOA",
 		"SystemScopedToken":                "gAAAAABgHrIy_I3JrLV7J_O8aUoLWkt3eG-DUVl4iP2P-poSCZgbeDfdlUDVQtzeTb9jKJlGy_jB1S-vBhPGrC43VqzeNjDgrCo9tUrNVQ_lGrjQ4BHA--SRg5t3W0iMUDZWhrn95oGP0b2ZFvAUyiCMURcmWzfpugxk0sL-3sfX4nEPMRT6VpA",
-		"ApplicationCredentialScopedToken": "gAAAAABgHrIyY1PVnLuy5MSrJ5K6uVVG1qH6lqaDGiUCoDGsEDyAzQ22rak-9J7WZFjQL7nNzkHZIdgOfouWCwUs82wPdyIYi1FXN7hsLAQtgVHxzfgorP7qIa9xQraJNA1W8LnV_hpFh_s301Z84f0spU-lJpmX-IAxkiVal2472r6biWbbcKgbFqiCtNrnyZDV-qC1ZTos0SvtntoRfjbp-7UJVRTZ3X2L9VqINCcc92DJR_2UvTM",
+		"ApplicationCredentialScopedToken": "gAAAAABkJEujAvVQ9P9YGnOMtRJqFm4705juERsFNsj4pVWnT9vLS5syT_gY1DAL-Kmf1BCaOVmlnvL_XxZso8ZLvnyTspSyYYNY-z4fBPHYPeS-imJCbXrNpKJA81x0xW4bh96vVnzTyfAuPVUEDokD9uD6Mo0SUg8PONBvtjxjf4seCUvhWJf3CCnNVMR67dUmVeNMuqMTbUTkdWSKYJ7-bT7vu_CS-Q",
 	}
 )

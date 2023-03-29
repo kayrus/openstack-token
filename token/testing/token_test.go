@@ -10,7 +10,7 @@ import (
 
 var (
 	debug    bool
-	matchErr = "tokens don't match"
+	matchErr = "tokens don't match, expected: %s, decoded: %s"
 )
 
 func init() {
@@ -71,7 +71,7 @@ func testDecodeUnscopedToken(tok *string, t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(testToken, decodedTok) {
-		t.Error(matchErr)
+		t.Errorf(matchErr, testToken, decodedTok)
 	}
 }
 
@@ -107,7 +107,7 @@ func testDecodeDomainScopedToken(tok *string, t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(testToken, decodedTok) {
-		t.Error(matchErr)
+		t.Errorf(matchErr, testToken, decodedTok)
 	}
 }
 
@@ -143,7 +143,7 @@ func testDecodeProjectScopedToken(tok *string, t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(testToken, decodedTok) {
-		t.Error(matchErr)
+		t.Errorf(matchErr, testToken, decodedTok)
 	}
 }
 
@@ -179,7 +179,7 @@ func testDecodeTrustScopedToken(tok *string, t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(testToken, decodedTok) {
-		t.Error(matchErr)
+		t.Errorf(matchErr, testToken, decodedTok)
 	}
 }
 
@@ -215,7 +215,7 @@ func testDecodeFederatedUnscopedToken(tok *string, t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(testToken, decodedTok) {
-		t.Error(matchErr)
+		t.Errorf(matchErr, testToken, decodedTok)
 	}
 }
 
@@ -251,7 +251,7 @@ func testDecodeFederatedProjectScopedToken(tok *string, t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(testToken, decodedTok) {
-		t.Error(matchErr)
+		t.Errorf(matchErr, testToken, decodedTok)
 	}
 }
 
@@ -287,7 +287,7 @@ func testDecodeFederatedDomainScopedToken(tok *string, t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(testToken, decodedTok) {
-		t.Error(matchErr)
+		t.Errorf(matchErr, testToken, decodedTok)
 	}
 }
 
@@ -323,7 +323,7 @@ func testDecodeOAuthScopedToken(tok *string, t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(testToken, decodedTok) {
-		t.Error(matchErr)
+		t.Errorf(matchErr, testToken, decodedTok)
 	}
 
 	am := decodedTok.GetAuthMethods()
@@ -368,7 +368,7 @@ func testDecodeSystemScopedToken(tok *string, t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(testToken, decodedTok) {
-		t.Error(matchErr)
+		t.Errorf(matchErr, testToken, decodedTok)
 	}
 }
 
@@ -403,7 +403,7 @@ func testDecodeApplicationCredentialScopedToken(tok *string, t *testing.T) {
 
 	testToken := tokensToEncode["ApplicationCredentialScopedToken"]
 	if !reflect.DeepEqual(testToken, decodedTok) {
-		t.Error(matchErr)
+		t.Errorf(matchErr, testToken, decodedTok)
 	}
 
 	am := decodedTok.GetAuthMethods()

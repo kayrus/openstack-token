@@ -50,6 +50,7 @@ type args struct {
 	userDomainID string
 	projectID    string
 	domainID     string
+	appCredID    string
 	authMethod   uint
 	generateKey  bool
 	auditIDs     auditID
@@ -103,15 +104,15 @@ func (r *Config) UnmarshalYAML(unmarshal func(interface{}) error) error {
 func readConfig(filename string) (*Config, error) {
 	raw, err := ioutil.ReadFile(filename)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read config file: %w", err)
+		return nil, fmt.Errorf("failed to read cfg file: %w", err)
 	}
 
-	var config Config
-	if err = yaml.Unmarshal(raw, &config); err != nil {
+	var cfg Config
+	if err = yaml.Unmarshal(raw, &cfg); err != nil {
 		return nil, fmt.Errorf("cannot parse %q file: %w", filename, err)
 	}
 
-	return &config, nil
+	return &cfg, nil
 }
 
 func printf(format string, args ...interface{}) {
@@ -178,7 +179,41 @@ func generateToken(args *args, cfg *Config) (*string, error) {
 	}
 
 	var genToken token.Token
-	if args.projectID != "" {
+	if args.appCredID != "" {
+		if args.projectID == "" {
+			return nil, fmt.Errorf("-project-id and -auth-method greater than 1 are required for application credential scoped token")
+		}
+
+		if cfg.AuthMethods[int(args.authMethod)] != "application_credential" {
+			return nil, fmt.Errorf("-auth-method=%d doesn't correspond to application credential auth method, decoded methods: %v", args.authMethod, cfg.AuthMethods)
+		}
+
+		projectID, err := hex.DecodeString(args.projectID)
+		if err != nil {
+			return nil, err
+		}
+		appCredID, err := hex.DecodeString(args.appCredID)
+		if err != nil {
+			return nil, err
+		}
+
+		genToken = &token.ApplicationCredentialScopedToken{
+			UserID: token.Data{
+				Value: userID,
+			},
+			AuthMethods: token.AuthMethods(args.authMethod),
+			ProjectID: token.Data{
+				Bytes: true,
+				Value: string(projectID),
+			},
+			AppCredID: token.Data{
+				Bytes: true,
+				Value: string(appCredID),
+			},
+			ExpiresAt: float64(timeNext.Unix()),
+			AuditIDs:  auditIDs,
+		}
+	} else if args.projectID != "" {
 		projectID, err := hex.DecodeString(args.projectID)
 		if err != nil {
 			return nil, err
@@ -235,6 +270,7 @@ func main() {
 	flag.StringVar(&args.userDomainID, "user-domain-id", os.Getenv("OS_USER_DOMAIN_ID"), "OpenStack user's domain ID to generate the unscoped token (works only with AD/LDAP users)")
 	flag.StringVar(&args.projectID, "project-id", os.Getenv("OS_PROJECT_ID"), "OpenStack project ID to generate the project scoped token")
 	flag.StringVar(&args.domainID, "domain-id", os.Getenv("OS_DOMAIN_ID"), "OpenStack domain ID to generate the domain scoped token")
+	flag.StringVar(&args.appCredID, "application-credential-id", os.Getenv("OS_APPLICATION_CREDENTIAL_ID"), "OpenStack application credential ID to generate the application credential scoped token")
 	flag.StringVar(&expiresAt, "expires-at", "", fmt.Sprintf("override token expiration date (%q format)", timeFormat))
 	flag.Var(&args.auditIDs, "audit-id", "Custom audit ID for the token (can be specified multiple times)")
 	flag.UintVar(&args.authMethod, "auth-method", 1, "Auth method number to use in a generated token (max 127)")

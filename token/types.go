@@ -39,7 +39,7 @@ type Data struct {
 
 func (d Data) String() string {
 	if d.Bytes {
-		return hex.EncodeToString([]byte(d.Value))
+		return fmt.Sprintf("%s (bytes hex)", hex.EncodeToString([]byte(d.Value)))
 	}
 	return string(d.Value)
 }
@@ -81,7 +81,7 @@ func (s Hex) String() string {
 	}
 
 	// raw data, encode it to string
-	return string(hex.EncodeToString([]byte(s)))
+	return fmt.Sprintf("%s (raw hex)", hex.EncodeToString([]byte(s)))
 }
 
 type AuthMethods int8

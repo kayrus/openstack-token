@@ -1,5 +1,5 @@
 # authMethods list and order must correspond to keystone config "methods" option
-# in "auth" section.
+# in "auth" section. This data is used by the "-auth-method" number.
 authMethods:
   - password
   - token

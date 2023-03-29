@@ -8,6 +8,9 @@ authMethods:
 # tokenTTL corresponds to keystone config "expiration" option in "token" section
 tokenTTL: 4h
 # fernetKeys values should be taken from files in "key_repository" directory of
-# the "fernet_tokens" section.
+# the "fernet_tokens" section. Alternatively a Vault URL can be specified.
+# A VAULT_TOKEN env variable must be set or ~/.vault-token should exist with a
+# valid token.
 fernetKeys:
-  - cw_0x689RpI-jtRR7oE8h_eQsKImvJapLeSbXpwF4e4=
+  - https://vault/<kv-storge>/<secret-path>/<secret-key>
+  - fernet-key-value

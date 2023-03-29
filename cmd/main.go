@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"math/rand"
 	"os"
@@ -14,9 +13,10 @@ import (
 	"time"
 
 	"github.com/fernet/fernet-go"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 
 	"github.com/kayrus/openstack-token/token"
+	"github.com/kayrus/openstack-token/vault"
 )
 
 const timeFormat = "2006-01-02 15:04:05.999999999 -0700 MST"
@@ -85,10 +85,14 @@ func (r *Config) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 	r.TokenTTL = tokenTTL
 
-	for _, key := range s.FernetKeys {
-		key, err := fernet.DecodeKey(key)
+	store := make(map[string]*vault.Store)
+	for _, v := range s.FernetKeys {
+		key, err := fernet.DecodeKey(v)
 		if err != nil {
-			return err
+			key, err = vault.URLToToken(store, v)
+			if err != nil {
+				return err
+			}
 		}
 		r.FernetKeys = append(r.FernetKeys, key)
 	}
@@ -102,7 +106,7 @@ func (r *Config) UnmarshalYAML(unmarshal func(interface{}) error) error {
 }
 
 func readConfig(filename string) (*Config, error) {
-	raw, err := ioutil.ReadFile(filename)
+	raw, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read cfg file: %w", err)
 	}
@@ -164,7 +168,7 @@ func generateToken(args *args, cfg *Config) (*string, error) {
 		}
 	} else {
 		auditID := make([]byte, 16)
-		rand.Seed(time.Now().UnixNano())
+		rand := rand.New(rand.NewSource(time.Now().UnixNano()))
 		rand.Read(auditID)
 		auditIDs = []token.Hex{token.Hex(auditID)}
 	}
